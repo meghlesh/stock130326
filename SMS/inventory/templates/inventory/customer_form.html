@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ company.name }} | Add Customer</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .active-nav { background-color: #4f46e5; color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-active { background-color: #4f46e5; color: white; }
+        /* ===== FORM INPUT GLOBAL STYLES ===== */
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="password"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.875rem;
+        border: 1.5px solid #cbd5e1; /* slate-300 */
+        border-radius: 0.75rem; /* rounded-xl */
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    /* Focus state */
+    input:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: #4f46e5; /* indigo-600 */
+        box-shadow: 0 0 0 2px rgb(79 70 229 / 20%);
+    }
+
+    /* Error state */
+    input.border-red-500,
+    textarea.border-red-500,
+    select.border-red-500 {
+        border-color: #dc2626 !important;
+    }
+
+    /* Disabled fields */
+    input:disabled,
+    textarea:disabled,
+    select:disabled {
+        background-color: #f1f5f9;
+        cursor: not-allowed;
+    }
+    input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #4f46e5;
+    cursor: pointer;
+}
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
+<!-- PACKING LOADER OVERLAY -->
+    <div id="logout-loader" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center hidden">
+        <div class="box-loader"></div>
+        <div class="conveyor-belt"></div>
+        <h3 class="mt-10 text-2xl font-bold text-slate-800 tracking-tight">Packing your workspace...</h3>
+        <p class="text-slate-400 font-medium mt-2">Saving progress and signing out safely.</p>
+    </div>
+
+    <!-- LOGOUT CONFIRMATION MODAL -->
+    <div id="logout-modal" class="fixed inset-0 z-[90] bg-slate-900/40 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="bg-white rounded-[2rem] p-10 max-w-sm w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0 duration-300 border border-slate-100" id="modal-content">
+            <div class="w-20 h-20 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center mb-8 mx-auto">
+                <i data-lucide="log-out" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-slate-900 text-center">Ready to go?</h3>
+            <p class="text-slate-500 mt-4 mb-10 text-center leading-relaxed">Confirm to sign out of your portal. We'll make sure your session is closed securely.</p>
+            <div class="flex flex-col gap-3">
+                <form id="logout-form" action="{% url 'company_logout' %}" method="POST" class="w-full">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full px-6 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
+                        Yes, Log me out
+                    </button>
+                </form>
+                <button onclick="closeLogoutModal()" class="w-full px-6 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">
+                    Stay here
+                </button>
+            </div>
+        </div>
+    </div>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- ================= SIDEBAR ================= -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden"></div>
+    <aside id="sidebar"
+          class="fixed md:static top-0 left-0 h-screen
+           w-64 bg-white border-r border-slate-200
+           flex flex-col shrink-0
+           -translate-x-full md:translate-x-0 z-50">
+        
+        <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+            <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <div class="overflow-hidden sidebar-text">
+                <h1 class="font-bold text-lg truncate">{{ company.name }}</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">Enterprise</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
+            <a href="{% url 'company_dashboard' %}" class="nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+
+            <div class="pt-4 pb-2 px-4 sidebar-text">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">CRM</p>
+            </div>
+
+            <a href="{% url 'customer_list' %}" class="nav-item active-nav flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="sidebar-text">Customers</span>
+            </a>
+
+            <a href="{% url 'vendor_list' %}" class="nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">
+                <i data-lucide="truck" class="w-5 h-5"></i>
+                <span class="sidebar-text">Vendors</span>
+            </a>
+
+            <div class="pt-4 pb-2 px-4 sidebar-text">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Administration</p>
+            </div>
+
+            <a href="{% url 'company_settings' %}" class="nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="sidebar-text">Settings</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-100">
+            <button onclick="openLogoutModal()" class="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition-colors group">
+                    <i data-lucide="log-out" class="w-5 h-5 transition-transform group-hover:-translate-x-1"></i>
+                    <span class="sidebar-text">Logout</span>
+                </button>
+        </div>
+    </aside>
+
+    <!-- ================= MAIN ================= -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Header -->
+        <header class="min-h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0">
+
+            <div class="flex items-center gap-4">
+                <button id="toggle-sidebar" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500 md:hidden">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+
+                <nav class="flex items-center gap-2">
+    <!-- Mobile title -->
+    <span class="font-semibold text-slate-800 md:hidden">
+        Add Customer
+    </span>
+
+    <!-- Desktop breadcrumb -->
+    <div class="hidden md:flex text-sm text-slate-500 gap-2 items-center">
+        <a href="{% url 'company_dashboard' %}" class="hover:text-indigo-600 transition-colors">Dashboard</a>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+        <a href="{% url 'customer_list' %}" class="hover:text-indigo-600 transition-colors">Customers</a>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+        <span class="font-semibold text-slate-800">Add Customer</span>
+    </div>
+</nav>
+            </div>
+
+            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border-2 border-white shadow-sm">
+                {{ request.user.username|slice:":1"|upper }}
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar">
+            <div class="max-w-4xl mx-auto space-y-6">
+
+                <!-- Title Section -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Add New Customer</h2>
+                        <p class="text-slate-500 text-sm">Manage customer details, addresses & contact persons.</p>
+                    </div>
+                    <a href="{% url 'customer_list' %}" class="text-sm font-semibold text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors group">
+                        <i data-lucide="arrow-left" class="w-4 h-4 transition-transform group-hover:-translate-x-1"></i> Back to Customers
+                    </a>
+                </div>
+
+                <!-- FORM CARD -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- TABS -->
+                        <div class="flex border-b border-slate-200">
+                            <button type="button" data-tab="basic" class="tab-btn tab-active px-6 py-4 text-sm font-bold">Basic Details</button>
+                            <button type="button" data-tab="addresses" class="tab-btn px-6 py-4 text-sm font-bold text-slate-500">Addresses</button>
+                            <button type="button" data-tab="contacts" class="tab-btn px-6 py-4 text-sm font-bold text-slate-500">Contact Persons</button>
+                        </div>
+
+                        <!-- BASIC DETAILS -->
+                        <div id="basic" class="tab-content p-4 sm:p-6 md:p-8 space-y-6">
+
+                            <section class="grid md:grid-cols-3 gap-6">
+                                <div>
+                                    <h3 class="font-bold">Customer Information</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Core customer details</p>
+                                </div>
+
+                                <div class="md:col-span-2 space-y-6">
+
+
+                                    {% for field in form %}
+                                    {% if field.name != 'notes' %}
+                                    <div>
+                                        <!-- <label class="text-[11px] font-bold uppercase text-slate-400">{{ field.label }} </label> -->
+<label class="text-[11px] font-bold uppercase text-slate-400 flex gap-1">
+    {{ field.label }}
+    {% if field.field.required %}
+        <span class="text-red-600">*</span>
+    {% endif %}
+</label>
+
+                                        {{ field }}
+                                        {% if field.errors %}
+                                        <p class="text-red-600 text-[11px] font-bold mt-1">{{ field.errors|striptags }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </section>
+
+                            <section>
+                                <h3 class="font-bold mb-2">Notes</h3>
+                                {{ form.notes }}
+                            </section>
+                        </div>
+
+                        <!-- ADDRESSES -->
+<!-- ADDRESSES -->
+<div id="addresses" class="tab-content hidden p-8">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg">Addresses</h3>
+        <button type="button" id="add-address"
+            class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl">
+            + Add Address
+        </button>
+    </div>
+
+    <div id="addresses-container" class="space-y-4">
+        {{ address_formset.management_form }}
+
+        {% for aform in address_formset %}
+        <div class="border rounded-xl p-6 bg-slate-50 relative">
+            <button type="button" onclick="removeForm(this)"
+                class="absolute top-3 right-3 text-rose-600 font-bold">✖</button>
+
+            {% for hidden in aform.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+
+                {% for field in aform.visible_fields %}
+
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <!-- Checkbox inline column -->
+                        <div class="flex items-center gap-2 mt-4">
+                            {{ field }}
+                            <label class="text-sm text-slate-600">
+                                {{ field.label }}
+                            </label>
+                        </div>
+                    {% else %}
+                        <div>
+                            <label class="text-[11px] font-bold uppercase text-slate-400 flex gap-1">
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="text-red-600">*</span>
+                                {% endif %}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.errors %}
+                                <p class="text-red-600 text-[11px] font-bold mt-1">
+                                    {{ field.errors|striptags }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- CONTACT PERSONS -->
+<div id="contacts" class="tab-content hidden p-8">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg">Contact Persons</h3>
+        <button type="button" id="add-contact"
+            class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-xl">
+            + Add Contact
+        </button>
+    </div>
+
+    <div id="contacts-container" class="space-y-4">
+        {{ contact_formset.management_form }}
+
+        {% for cform in contact_formset %}
+        <div class="border rounded-xl p-6 bg-slate-50 relative">
+            <button type="button" onclick="removeForm(this)"
+                class="absolute top-3 right-3 text-rose-600 font-bold">✖</button>
+
+            {% for hidden in cform.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+
+                {% for field in cform.visible_fields %}
+
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <!-- Checkbox inline column -->
+                        <div class="flex items-center gap-2 mt-4">
+                            {{ field }}
+                            <label class="text-sm text-slate-600">
+                                {{ field.label }}
+                            </label>
+                        </div>
+                    {% else %}
+                        <div>
+                            <label class="text-[11px] font-bold uppercase text-slate-400 flex gap-1">
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="text-red-600">*</span>
+                                {% endif %}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.errors %}
+                                <p class="text-red-600 text-[11px] font-bold mt-1">
+                                    {{ field.errors|striptags }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+                        <!-- FOOTER -->
+                        <div class="px-8 py-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                            <a href="{% url 'customer_list' %}" class="px-6 py-2 rounded-xl bg-white border border-slate-300 font-bold text-sm">Cancel</a>
+                            <button type="submit" class="px-10 py-2 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-lg hover:bg-indigo-700">Save Customer</button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="text-center pb-8">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest">Enterprise Customer Management Module</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Sidebar toggling
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function openSidebar() { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); }
+    function closeSidebar() { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); }
+
+    toggleBtn.addEventListener('click', () => sidebar.classList.contains('-translate-x-full') ? openSidebar() : closeSidebar());
+    overlay.addEventListener('click', closeSidebar);
+
+    document.querySelectorAll('#sidebar a').forEach(link => link.addEventListener('click', () => { if(window.innerWidth < 768) closeSidebar(); }));
+    window.addEventListener('resize', () => { window.innerWidth >= 768 ? (sidebar.classList.remove('-translate-x-full'), overlay.classList.add('hidden')) : sidebar.classList.add('-translate-x-full'); });
+    window.onload = () => { lucide.createIcons(); if(window.innerWidth < 768) sidebar.classList.add('-translate-x-full'); }
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active'); b.classList.add('text-slate-500'); });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            btn.classList.add('tab-active'); btn.classList.remove('text-slate-500');
+            document.getElementById(btn.dataset.tab).classList.remove('hidden');
+        });
+    });
+
+    function removeForm(el) { el.closest('.border').remove(); }
+// Real-time validation for duplicate fields 19-1-26  ================================
+    document.addEventListener('DOMContentLoaded', function() {
+    // Check email uniqueness on blur
+    const emailInput = document.querySelector('[name="email"]');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            checkFieldUniqueness('email', this.value, 'email');
+        });
+    }
+    
+    // Check GST uniqueness on blur
+    const gstInput = document.querySelector('[name="gst_number"]');
+    if (gstInput) {
+        gstInput.addEventListener('blur', function() {
+            checkFieldUniqueness('gst_number', this.value, 'GST number');
+        });
+    }
+    
+    // Check website uniqueness on blur
+    const websiteInput = document.querySelector('[name="website"]');
+    if (websiteInput) {
+        websiteInput.addEventListener('blur', function() {
+            checkFieldUniqueness('website', this.value, 'website');
+        });
+    }
+});
+
+function checkFieldUniqueness(fieldName, value, fieldLabel) {
+    if (!value.trim()) return;
+    
+    // Make AJAX request to check uniqueness
+    fetch(`/inventory/api/check-customer-field/?field=${fieldName}&value=${encodeURIComponent(value)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                // Show error near the field
+                let errorElement = document.querySelector(`#${fieldName}-error`);
+                if (!errorElement) {
+                    const input = document.querySelector(`[name="${fieldName}"]`);
+                    errorElement = document.createElement('p');
+                    errorElement.id = `${fieldName}-error`;
+                    errorElement.className = 'text-red-600 text-xs mt-1';
+                    input.parentNode.appendChild(errorElement);
+                }
+                errorElement.textContent = `${fieldLabel} already exists in the system.`;
+                
+                // Add red border to input
+                const input = document.querySelector(`[name="${fieldName}"]`);
+                input.classList.add('border-red-500');
+            } else {
+                // Remove error if exists
+                const errorElement = document.querySelector(`#${fieldName}-error`);
+                if (errorElement) errorElement.remove();
+                
+                // Remove red border
+                const input = document.querySelector(`[name="${fieldName}"]`);
+                input.classList.remove('border-red-500');
+            }
+                    });
+}
+            // Real-time phone validation
+            const phoneInput = document.querySelector('[name="phone"]');
+            if (phoneInput) {
+                phoneInput.addEventListener('blur', function() {
+                    checkPhoneUniqueness(this.value);
+                });
+                
+                // Format phone number as user types
+                phoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 10) value = value.substring(0, 10);
+                    e.target.value = value;
+                });
+            }
+
+                    function checkPhoneUniqueness(phone) {
+                        if (!phone || phone.length < 10) return;
+                        
+                        fetch(`/inventory/api/check-customer-field/?field=phone&value=${encodeURIComponent(phone)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.exists) {
+                                    let errorElement = document.querySelector('#phone-error');
+                                    if (!errorElement) {
+                                        const input = document.querySelector('[name="phone"]');
+                                        errorElement = document.createElement('p');
+                                        errorElement.id = 'phone-error';
+                                        errorElement.className = 'text-red-600 text-xs mt-1';
+                                        input.parentNode.appendChild(errorElement);
+                                    }
+                                    errorElement.textContent = 'Phone number already exists in the system.';
+                                    
+                                    const input = document.querySelector('[name="phone"]');
+                                    input.classList.add('border-red-500');
+                                } else {
+                                    const errorElement = document.querySelector('#phone-error');
+                                    if (errorElement) errorElement.remove();
+                                    
+                                    const input = document.querySelector('[name="phone"]');
+                                    input.classList.remove('border-red-500');
+                                }
+                            });
+}
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[name$="zip_code"]').forEach(function(input) {
+        input.setAttribute("maxlength", "6");
+        input.setAttribute("inputmode", "numeric");
+        input.setAttribute("pattern", "\\d{6}");
+        input.required = true;
+    });
+});
+
+document.addEventListener('input', function (e) {
+    if (e.target.name && e.target.name.includes('zip_code')) {
+        let value = e.target.value.replace(/\D/g, ''); // remove non-digits
+        if (value.length > 6) {
+            value = value.substring(0, 6);
+        }
+        e.target.value = value;
+    }
+});
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[name$="phone"]').forEach(function(input) {
+        input.setAttribute("maxlength", "10");
+        input.setAttribute("inputmode", "numeric");
+        input.setAttribute("pattern", "\\d{10}");
+        input.required = true;
+    });
+});
+
+document.addEventListener('input', function (e) {
+    if (e.target.name && e.target.name.includes('phone')) {
+        let value = e.target.value.replace(/\D/g, ''); // remove non-digits
+
+        if (value.length > 10) {
+            value = value.substring(0, 10);
+        }
+
+        e.target.value = value;
+    }
+});
+ // --- Logout Flow ---
+        const logoutModal = document.getElementById('logout-modal');
+        const modalContent = document.getElementById('modal-content');
+        const logoutLoader = document.getElementById('logout-loader');
+        const logoutForm = document.getElementById('logout-form');
+
+        function openLogoutModal() {
+            logoutModal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeLogoutModal() {
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                logoutModal.classList.add('hidden');
+            }, 300);
+        }
+
+        logoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            closeLogoutModal();
+            setTimeout(() => {
+                logoutLoader.classList.remove('hidden');
+                // Packing animation duration before final redirect
+                setTimeout(() => {
+                    this.submit();
+                }, 1600);
+            }, 300);
+        });
+</script>
+</script>
+
+</body>
+</html>
