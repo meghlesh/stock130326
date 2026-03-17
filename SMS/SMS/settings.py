@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'SMS.wsgi.application'
        # 'HOST': 'Db_host',
         #'PORT': '5432',
     #}
-}#
+#}
 
 import os
 
