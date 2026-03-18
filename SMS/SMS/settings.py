@@ -23,7 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-lc)k*zayp4c2jc-d$v)w12+^3bu4+n&1&h+4p@you@*=iuyu2&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
+
+ALLOWED_HOSTS = [
+    "api-sms-be-cddgg8d5euh3ckhg.southindia-01.azurewebsites.net",
+    "app-sms-fe-f5bbgja2fzdwe3hk.southindia-01.azurewebsites.net"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://api-sms-be-cddgg8d5euh3ckhg.southindia-01.azurewebsites.net",
+    "app-sms-fe-f5bbgja2fzdwe3hk.southindia-01.azurewebsites.net"
+]
 
 ALLOWED_HOSTS = ['*']
 
