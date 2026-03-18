@@ -33,7 +33,7 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "https://api-sms-be-cddgg8d5euh3ckhg.southindia-01.azurewebsites.net",
-    "app-sms-fe-f5bbgja2fzdwe3hk.southindia-01.azurewebsites.net"
+    "https://app-sms-fe-f5bbgja2fzdwe3hk.southindia-01.azurewebsites.net"
 ]
 
 ALLOWED_HOSTS = ['*']
