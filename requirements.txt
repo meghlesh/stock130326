@@ -13,6 +13,7 @@ reportlab==4.4.10
 sqlparse==0.5.5
 tzdata==2025.3
 gunicorn
+psycopg2-binary
 
 #1 create env
 #2 activate it (venv\scripts\activate)
