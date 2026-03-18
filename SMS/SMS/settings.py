@@ -80,9 +80,9 @@ DATABASES = {
   'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'SMS',      # your database name
-        'USER': 'postgres',          # your postgres username
-        'PASSWORD': 'Ashu@849186', # your postgres password
-        'HOST': '127.0.0.1',
+        'USER': 'postgresadmin@sms-postgres-server',          # your postgres username
+        'PASSWORD': 'Database@5432', # your postgres password
+        'HOST': 'sms-postgres-server.postgres.database.azure.com',
         'PORT': '5432',
     }
 }
