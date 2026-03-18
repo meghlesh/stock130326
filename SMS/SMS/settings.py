@@ -36,7 +36,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://app-sms-fe-f5bbgja2fzdwe3hk.southindia-01.azurewebsites.net"
 ]
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [ ]
 
 
 # Application definition
