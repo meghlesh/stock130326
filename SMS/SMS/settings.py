@@ -76,29 +76,29 @@ WSGI_APPLICATION = 'SMS.wsgi.application'
 Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+#DATABASES = {
+ # 'default': {
+  #      'ENGINE': 'django.db.backends.postgresql',
+   #     'NAME': 'SMS',      # your database name
+    #    'USER': 'postgresadmin@sms-postgres-server',          # your postgres username
+     #   'PASSWORD': 'Database@5432', # your postgres password
+      #  'HOST': 'sms-postgres-server.postgres.database.azure.com',
+       # 'PORT': '5432',
+    #}
+#}
+
+import os
+
 DATABASES = {
-  'default': {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'SMS',      # your database name
-        'USER': 'postgresadmin@sms-postgres-server',          # your postgres username
-        'PASSWORD': 'Database@5432', # your postgres password
-        'HOST': 'sms-postgres-server.postgres.database.azure.com',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
         'PORT': '5432',
     }
 }
-
-#import os
-
-#DATABASES = {
-# 'default': {
- #'ENGINE': 'django.db.backends.postgresql',
- #'NAME': os.getenv('DB_NAME', 'SMS'),
- #'USER': os.getenv('DB_USER', 'postgres'),
- #'PASSWORD': os.getenv('DB_PASSWORD', 'yourpassword'),
- #'HOST': os.getenv('DB_HOST', 'localhost'),
- #'PORT': os.getenv('DB_PORT', '5432'),
- #}
-#}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
