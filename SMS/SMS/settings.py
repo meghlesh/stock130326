@@ -82,8 +82,8 @@ DATABASES = {
         'NAME': 'SMS',      # your database name
         'USER': 'postgres',          # your postgres username
         'PASSWORD': 'Ashu@849186', # your postgres password
-        'HOST': '40.78.194.103',
-        'PORT': '3000',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
