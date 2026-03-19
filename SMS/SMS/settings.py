@@ -64,7 +64,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'SMS.urls'
-
+Print ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
