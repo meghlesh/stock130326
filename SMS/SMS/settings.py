@@ -102,12 +102,8 @@ import os
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
-                conn_max_age=600,
-        ssl_require=True
-    )
-        {
+    'default': 
+    {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
