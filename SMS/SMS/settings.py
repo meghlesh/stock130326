@@ -104,9 +104,9 @@ DATABASES = {
     'default': 
     {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME','sms'),
+        'NAME': os.environ.get('DB_NAME','postgres'),
         'USER': os.environ.get('DB_USER','postgresadmin@sms-postgres-server'),
-        'PASSWORD': os.environ.get('DB_PASSWORD','MyPass1234'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST','sms-postgres-server.postgres.database.azure.com'),
         'PORT': '5432',
          'OPTIONS': {
